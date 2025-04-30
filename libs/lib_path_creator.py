@@ -35,7 +35,8 @@ class PolygonProcessor:
             self.split_lines_x = [image_scale_x/3, (image_scale_x/3)*2]
         else:
             self.split_lines_x = sorted(split_lines_x)
-    
+
+
     @staticmethod
     def unique_points(points: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
         """Удаляет дубликаты точек с сохранением порядка"""
@@ -286,64 +287,62 @@ class PolygonProcessor:
         
         return split_polygons, self.new_points_data
 
-    def panel_generate_protocol(self, direction: str) -> str:
-        """
-        Генерирует протокол перемещения в формате NMEA
-        
-        Args:
-            direction: Направление для фильтрации ('Panel_1', 'Object_all' или конкретная секция)
-        
-        Returns:
-            Строка с протоколом в формате NMEA
-        """
-        protocol_lines = []
-        total_points = 0
-        total_objects = 0
-        object_number = 1  # Инициализация номера объекта
+    def generate_protocol(self, direction: str) -> str:
+            """
+            Генерирует протокол перемещения в формате NMEA
+            
+            Args:
+                direction: Направление для фильтрации ('Panel_1', 'Object_all' или конкретная секция)
+            
+            Returns:
+                Строка с протоколом в формате NMEA
+            """
+            protocol_lines = []
+            total_points = 0
+            total_objects = 0
+            object_number = 1
 
-        for section, poly_idx, points in self.new_points_data:
-            # Фильтрация по направлению
-            if direction == 'Object_all':
-                pass  # Берем все объекты
-            elif direction == 'Panel_1':
-                if section not in ['Left', 'Middle', 'Right']:
+            for section, poly_idx, points in self.new_points_data:
+                # Фильтрация по направлению
+                if direction == 'Object_all':
+                    pass  # Берем все объекты
+                elif direction == 'Panel_1':
+                    if section not in ['Left', 'Middle', 'Right']:
+                        continue
+                elif section != direction:
                     continue
-            elif section != direction:
-                continue
-            
-            original_path = self.generate_snake_path(points, self.brush_radius)
-            if not original_path:
-                continue
-            
-            processed_path = self.process_coordinates(original_path)
-            if not processed_path:
-                continue
-            
-            total_objects += 1
-            num_points = len(processed_path)
-            total_points += num_points
-            
-            # Теперь передаем только номер объекта, количество точек и координаты
-            protocol_line = f"{object_number},{num_points}," + \
-                        ",".join(f"{x:.3f},{y:.3f}" for x, y in processed_path)
-            protocol_lines.append(protocol_line)
-            object_number += 1
+                
+                original_path = self.generate_snake_path(points, self.brush_radius)
+                if not original_path:
+                    continue
+                
+                processed_path = self.process_coordinates(original_path)
+                if not processed_path:
+                    continue
+                
+                total_objects += 1
+                num_points = len(processed_path)
+                total_points += num_points
+                
+                protocol_line = f"{object_number},{num_points}," + \
+                            ",".join(f"{x:.3f},{y:.3f}" for x, y in processed_path)
+                protocol_lines.append(protocol_line)
+                object_number += 1
 
-        if not protocol_lines:
-            return f"No data for direction: {direction}"
+            if not protocol_lines:
+                return f"No data for direction: {direction}"
 
-        # Формируем финальный протокол (brush_radius указывается только один раз в начале)
-        protocol = f"$PNLMV,{self.brush_radius:.3f},{total_points},{total_objects}," + \
-                ",".join(protocol_lines)
+            protocol = f"$PNLMV,{self.brush_radius:.3f},{total_points},{total_objects}," + \
+                    ",".join(protocol_lines)
 
-        # Генерация контрольной суммы NMEA
-        checksum_data = protocol[1:]  # Берем все после '$'
-        checksum = 0
-        for c in checksum_data:
-            checksum ^= ord(c)
-        protocol += f"*{checksum:02X}"
+            # Генерация контрольной суммы NMEA
+            checksum_data = protocol[1:]
+            checksum = 0
+            for c in checksum_data:
+                checksum ^= ord(c)
+            protocol += f"*{checksum:02X}"
 
-        return protocol
+            return protocol
     
     def plot_results(self, 
                     polygons: List[Polygon], 
@@ -422,7 +421,7 @@ def main():
         print("\nGenerated Protocols:")
 
         print("\nLeft Section Protocol:")
-        print(processor.panel_generate_protocol("Middle"))
+        print(processor.generate_protocol("Middle"))
         
     else:
         print("Нет полигонов для отображения")
