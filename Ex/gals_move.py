@@ -356,7 +356,7 @@ def plot_colored_polygons(polygons):
     plt.show()
 
 # Основной код
-file_path = '/home/ubuntu22/Desktop/Oceanos_work/NN_gals/example_lables/f2_123_jpg.rf.35c54a8ea5489fdd626afe146ae221f2.txt'
+file_path = '/home/ubuntu22/Desktop/Oceanos_work/NN_gals/example_lables/f1_2503_jpg.rf.1d8f3aed4799fde82f50f2331f197da4.txt'
 polygons = parse_data(file_path)
 
 # Разделяем полигоны

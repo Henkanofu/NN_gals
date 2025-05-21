@@ -136,7 +136,7 @@ def print_polygon_info(polygons, spacing):
             print(f"  {spacing}, {num_points} (x: {x}, y: {y})")
 
 # Укажите путь к вашему файлу
-file_path = '/home/ubuntu22/Desktop/Oceanos_work/NN_gals/example_lables/f1_2793_jpg.rf.a404ee2879e976c41b491c3ec65913fb.txt'
+file_path = '/home/ubuntu22/Desktop/Oceanos_work/NN_gals/example_lables/f1_2503_jpg.rf.1d8f3aed4799fde82f50f2331f197da4.txt'
 polygons = parse_data(file_path)
 
 # Разделяем полигоны
